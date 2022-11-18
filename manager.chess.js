@@ -16,25 +16,6 @@ module.exports = class ChessManager extends Manager {
             incoming:incoming,
         })
 
-        // setup supported commands
-        // handlers['chess.increment'] = (s,cb) => {
-        //     this.forced = true
-        //     this.write('increment', err => {
-        //         if (err) {
-        //             s.ref.update({ 'error': err });
-        //         }
-        //         cb()
-        //     });
-        // }
-        // handlers['zoltar.decrement'] = (s,cb) => { 
-        //     this.write('decrement', err => {
-        //         if (err) {
-        //             s.ref.update({ 'error': err });
-        //         }
-        //         cb()
-        //     });
-        // }
-
         handlers['chess.reboot'] = (s,cb) => {
             this.write('reboot', err => {
                 if (err) {
