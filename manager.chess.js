@@ -44,6 +44,24 @@ module.exports = class ChessManager extends Manager {
             });
         }
 
+        handlers['chess.solveHead'] = (s,cb) => {
+            this.write('solve1', err => {
+                if (err) {
+                    s.ref.update({ 'error': err });
+                }
+                cb()
+            });
+        }
+
+        handlers['chess.solveBoard'] = (s,cb) => {
+            this.write('solve2', err => {
+                if (err) {
+                    s.ref.update({ 'error': err });
+                }
+                cb()
+            });
+        }
+
         // piece_1:off
         // piece_2:off
         // rfid_solved:false
