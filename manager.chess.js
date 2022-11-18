@@ -16,7 +16,7 @@ module.exports = class ChessManager extends Manager {
             incoming:incoming,
         })
 
-        handlers['chess.reboot'] = (s,cb) => {
+        handlers['chess.reset'] = (s,cb) => {
             this.write('reboot', err => {
                 if (err) {
                     s.ref.update({ 'error': err });
