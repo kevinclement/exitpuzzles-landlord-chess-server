@@ -25,6 +25,7 @@ module.exports = class ChessManager extends Manager {
         handlers['chess.reset']      = (s,cb) => { this.write('reboot',    err => { if (err) { s.ref.update({ 'error': err }); } cb() }); }
         handlers['chess.solveHead']  = (s,cb) => { this.write('solve1',    err => { if (err) { s.ref.update({ 'error': err }); } cb() }); }
         handlers['chess.solveBoard'] = (s,cb) => { this.write('solve2',    err => { if (err) { s.ref.update({ 'error': err }); } cb() }); }
+        handlers['chess.lightsOff']  = (s,cb) => { this.write('lightsOff', err => { if (err) { s.ref.update({ 'error': err }); } cb() }); }
 
         // setup supported device output parsing
         incoming.push(
