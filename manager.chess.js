@@ -63,6 +63,7 @@ module.exports = class ChessManager extends Manager {
                     this.logger.log(this.logPrefix + 'all solved, playing sound...')
                     this.play("door-open.wav", () => {
                         this.logger.log(this.logPrefix + 'audio finished.  opening door...')
+                        this.write('finish', err => { });
                     })
                 }
 
