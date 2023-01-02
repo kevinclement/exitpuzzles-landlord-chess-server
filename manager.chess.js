@@ -59,7 +59,7 @@ module.exports = class ChessManager extends Manager {
                 })
 
                 // check if any interesting state toggled from last time
-                if (newState.solved != this.state.solved) {
+                if (newState.solved != this.state.solved && newState.solved) {
                     this.logger.log(this.logPrefix + 'all solved, playing sound...')
                     this.play("door-open.wav", () => {
                         this.logger.log(this.logPrefix + 'audio finished.  opening door...')
