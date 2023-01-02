@@ -4,7 +4,6 @@ let audio = new (require('./audio'))({ logger: logger })
 
 let managers = [];
 managers.push(new (require('./manager.chess'))({ name: 'chess', logger: logger, fb: fb, audio: audio }))
-// managers.push(new (require('./manager.hands'))({ name: 'hands', logger: logger, fb: fb }))
 
 // might want to turn this off while doing dev, so I have a flag for it
 let ENABLE_FIREBASE_LOGS = true;

@@ -1,3 +1,4 @@
+const ChessDeviceState = require('./chessDeviceState');
 let Manager = require('./manager')
 
 module.exports = class ChessManager extends Manager {
@@ -16,124 +17,83 @@ module.exports = class ChessManager extends Manager {
             incoming:incoming,
         })
 
-        handlers['chess.reset'] = (s,cb) => {
-            this.write('reboot', err => {
-                if (err) {
-                    s.ref.update({ 'error': err });
-                }
-                cb()
-            });
-        }
+        // ask for status once we connect
+        this.on('connected', () => {
+            this.write('status')
+        });
 
-        handlers['chess.solveHead'] = (s,cb) => {
-            this.write('solve1', err => {
-                if (err) {
-                    s.ref.update({ 'error': err });
-                }
-                cb()
-            });
-        }
-
-        handlers['chess.solveBoard'] = (s,cb) => {
-            this.write('solve2', err => {
-                if (err) {
-                    s.ref.update({ 'error': err });
-                }
-                cb()
-            });
-        }
-
-        // piece_1:off
-        // piece_2:off
-        // rfid_solved:false
-        // bust:off
-        // bust_solved:false
-        // magnet:enabled
-        // cabinet:enabled
-        // cabinetLed:disabled
-        // speakerLed:disabled
-        
-        // solved:false
+        handlers['chess.reset']      = (s,cb) => { this.write('reboot',    err => { if (err) { s.ref.update({ 'error': err }); } cb() }); }
+        handlers['chess.solveHead']  = (s,cb) => { this.write('solve1',    err => { if (err) { s.ref.update({ 'error': err }); } cb() }); }
+        handlers['chess.solveBoard'] = (s,cb) => { this.write('solve2',    err => { if (err) { s.ref.update({ 'error': err }); } cb() }); }
 
         // setup supported device output parsing
         incoming.push(
         {
             pattern:/.*status=(.*)/,
             match: (m) => {
+                // Use a parsed object so I can look at the parsing as a whole and not rely on ordering
+                let newState = new ChessDeviceState();
+
                 m[1].split(',').forEach((s)=> {
                     let p = s.split(/:(.+)/);
                     switch(p[0]) {
-                        case "solved": 
-                            this.solved = (p[1] === 'true')
+                        case "bust":
+                            newState.bust = (p[1] === 'on')
                             break
-                        // case "coins": 
-                        //     let nCoins = parseInt(p[1]);
-                        //     if (this.coins != nCoins && this.coins < nCoins) {
-                        //         this.coinChange()
-                        //     }
-                        //     this.coins = nCoins
-                        //     break
-                        // case "donations": 
-                        //     let nDonations = parseInt(p[1])
-                        //     if (this.donations != nDonations && this.donations < nDonations) {
-                        //         this.donationChange()
-                        //     }
-                        //     this.donations = nDonations
-                        //     break
+                        case "bust_solved":
+                            newState.bust_solved = (p[1] === 'true')
+                            break
+                        case "piece_1":
+                            newState.piece_1 = (p[1] === 'on')
+                            break
+                        case "piece_2":
+                            newState.piece_2 = (p[1] === 'on')
+                            break
+                        case "rfid_solved":
+                            newState.rfid_solved = (p[1] === 'true')
+                            break
+                        case "solved":
+                            newState.solved = (p[1] === 'true')
+                            break
                     }
                 })
 
+                // check if any interesting state toggled from last time
+                if (newState.solved != this.state.solved) {
+                    this.logger.log(this.logPrefix + 'all solved, playing sound...')
+                    this.play("door-open.wav", () => {
+                        this.logger.log(this.logPrefix + 'audio finished.  opening door...')
+                    })
+                }
+
+                // copy to our state now
+                this.state = newState;
+
                 ref.child('info/build').update({
-                    version: this.version,
-                    date: this.buildDate,
-                    gitDate: this.gitDate
+                    version: newState.version,
+                    date: newState.buildDate,
+                    gitDate: newState.gitDate
                 })
 
                 ref.update({
-                    solved: this.solved,
-                    // coins: this.coins,
-                    // donations: this.donations
-                })
+                    bust: newState.bust,
+                    bust_solved: newState.bust_solved,
+                    piece_1: newState.piece_1,
+                    piece_2: newState.piece_2,
+                    rfid_solved: newState.rfid_solved,
+                    solved: newState.solved,
+                })    
             }
         });
 
         this.audio = opts.audio
-
-        this.solved = false
-        this.version = "unknown"
-        this.gitDate = "unknown"
-        this.buildDate = "unknown"
-        // this.coins = 0
-        // this.donations = 0
+        
+        // start with unknown tnt state
+        this.state = new ChessDeviceState();
 
         // now connect to serial
         this.connect()
     }
-
-    // coinChange() {
-    //     this.logger.log(this.logPrefix + 'detected coin change...')
-    //     var _solved = this.solved
-    //     this.play("coin.wav", () => {
-    //         if (_solved) {
-    //             this.allCoins()
-    //         }
-    //     })
-    // }
-
-    // donationChange() {
-    //     this.logger.log(this.logPrefix + 'detected donation...')
-    //     this.play(["error.wav", "donation.wav"])
-    // }
-
-    // allCoins() {
-    //     this.logger.log(this.logPrefix + 'solved.')
-    //     this.play("solve-long.wav")
-
-    //     // print after a period of time so the success can play
-    //     setTimeout(() => {
-    //         this.printer.print(() => {})
-    //     },2000)
-    // }
 
     play(fName, cb) {
         this.audio.play(fName, (err) => {
