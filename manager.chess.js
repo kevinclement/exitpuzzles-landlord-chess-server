@@ -26,6 +26,8 @@ module.exports = class ChessManager extends Manager {
         handlers['chess.solveHead']  = (s,cb) => { this.write('solve1',    err => { if (err) { s.ref.update({ 'error': err }); } cb() }); }
         handlers['chess.solveBoard'] = (s,cb) => { this.write('solve2',    err => { if (err) { s.ref.update({ 'error': err }); } cb() }); }
         handlers['chess.lightsOff']  = (s,cb) => { this.write('lightsOff', err => { if (err) { s.ref.update({ 'error': err }); } cb() }); }
+        handlers['chess.piecesOff']  = (s,cb) => { this.write('piecesOff', err => { if (err) { s.ref.update({ 'error': err }); } cb() }); }
+        handlers['chess.piecesOn']   = (s,cb) => { this.write('piecesOn',  err => { if (err) { s.ref.update({ 'error': err }); } cb() }); }
 
         // setup supported device output parsing
         incoming.push(
@@ -55,6 +57,9 @@ module.exports = class ChessManager extends Manager {
                             break
                         case "lights":
                             newState.lights = (p[1] === 'true')
+                            break
+                        case "piecesDisabled":
+                            newState.piecesDisabled = (p[1] === 'true')
                             break
                         case "solved":
                             newState.solved = (p[1] === 'true')
@@ -87,6 +92,7 @@ module.exports = class ChessManager extends Manager {
                     piece_2: newState.piece_2,
                     rfid_solved: newState.rfid_solved,
                     lights: newState.lights,
+                    piecesDisabled: newState.piecesDisabled,
                     solved: newState.solved,
                 })    
             }

@@ -10,6 +10,7 @@ module.exports = class ChessDeviceState {
         this.piece_2 = false;
         this.rfid_solved = false;
         this.lights = true;
+        this.piecesDisabled = false;
         this.solved = false;
     }
 }
