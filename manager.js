@@ -51,9 +51,12 @@ module.exports = class Manager extends EventEmitter {
     }
 
     activity() {
-        this.ref.child('info').update({
-            lastActivity: (new Date()).toLocaleString()
-       })
+        // NOTE: disabling this as I want to use a toggle in the UI and it will jitter because of this first update
+        // I dont care to solve this and am not using this field so I'm commenting out for now.
+    
+        // this.ref.child('info').update({
+        //   lastActivity: (new Date()).toLocaleString()
+        // })
     }
 
     data(line) {
