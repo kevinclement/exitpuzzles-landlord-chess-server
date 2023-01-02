@@ -53,6 +53,9 @@ module.exports = class ChessManager extends Manager {
                         case "rfid_solved":
                             newState.rfid_solved = (p[1] === 'true')
                             break
+                        case "lights":
+                            newState.lights = (p[1] === 'true')
+                            break
                         case "solved":
                             newState.solved = (p[1] === 'true')
                             break
@@ -83,6 +86,7 @@ module.exports = class ChessManager extends Manager {
                     piece_1: newState.piece_1,
                     piece_2: newState.piece_2,
                     rfid_solved: newState.rfid_solved,
+                    lights: newState.lights,
                     solved: newState.solved,
                 })    
             }
